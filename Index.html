@@ -1,0 +1,790 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07110d">
+<link rel="manifest" href="manifest.json">
+<title>Employee Online Attendance</title>
+
+<style>
+:root{--bg:#f4f7f6;--card:#fff;--text:#122019;--muted:#718078;--line:#dce5e0;--green:#10b85b;--red:#ef3d4f;--blue:#3b82f6;--purple:#8b5cf6;--yellow:#f5b942;--shadow:0 12px 30px #12331a12}
+[data-theme=dark]{--bg:#07110d;--card:#0e1b15;--text:#eefaf2;--muted:#91a79a;--line:#24372d;--shadow:0 12px 30px #0008}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,sans-serif}
+button,input,select{font:inherit}
+button{border:0;cursor:pointer}
+.app{max-width:900px;margin:auto;min-height:100vh;padding-bottom:88px}
+.top{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(14px);padding:16px 18px 10px;border-bottom:1px solid var(--line)}
+.brand{display:flex;justify-content:space-between;align-items:center}
+.brand h1{font-size:21px;margin:0}
+.brand small{color:var(--muted)}
+.icon{background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:14px;padding:10px}
+main{padding:18px}
+.hero{padding:20px;border-radius:26px;background:linear-gradient(135deg,#073b20,#0fa95a);color:white;box-shadow:var(--shadow);margin-bottom:18px}
+.hero h2{margin:0 0 6px;font-size:27px}
+.hero p{margin:0;opacity:.82}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;box-shadow:var(--shadow)}
+.stat b{font-size:25px}
+.stat span{display:block;color:var(--muted);font-size:12px;margin-top:5px}
+.section{margin-top:22px}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.section h3{margin:0;font-size:19px}
+.btn{padding:11px 14px;border-radius:13px;background:var(--text);color:var(--bg);font-weight:700}
+.btn.green{background:var(--green);color:#fff}
+.btn.red{background:var(--red);color:#fff}
+.btn.blue{background:var(--blue);color:#fff}
+.btn.ghost{background:var(--card);color:var(--text);border:1px solid var(--line)}
+.employee{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:15px;margin:10px 0;box-shadow:var(--shadow)}
+.emp-head{display:flex;align-items:center;gap:12px}
+.avatar{width:48px;height:48px;border-radius:15px;background:linear-gradient(135deg,#20d96f,#08763c);display:grid;place-items:center;color:#fff;font-weight:900}
+.emp-name{font-weight:800}
+.emp-meta{color:var(--muted);font-size:12px;margin-top:3px}
+.status{margin-left:auto;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:900}
+.s-present{background:#d8f8e5;color:#07803c}
+.s-absent{background:#ffe0e4;color:#c51f33}
+.s-leave{background:#e1ebff;color:#1d5bc7}
+.s-holiday{background:#fff0c7;color:#9a6900}
+.actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:13px}
+.actions button{padding:12px 5px;border-radius:13px;font-weight:800}
+.p{background:#d8f8e5;color:#07803c}
+.a{background:#ffe0e4;color:#c51f33}
+.l{background:#e1ebff;color:#1d5bc7}
+.h{background:#fff0c7;color:#9a6900}
+.ot{margin-top:10px;display:flex;gap:6px;overflow:auto;padding-bottom:2px}
+.ot button{min-width:42px;padding:9px;border-radius:10px;background:var(--bg);color:var(--text);border:1px solid var(--line)}
+.ot button.active{background:var(--purple);color:white;border-color:var(--purple)}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(900px,100%);display:grid;grid-template-columns:repeat(4,1fr);background:var(--card);border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom));z-index:10}
+.nav button{background:transparent;color:var(--muted);padding:9px 3px;border-radius:14px;font-size:11px}
+.nav button.active{background:var(--green);color:#fff}
+.nav strong{display:block;font-size:18px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:var(--shadow);margin:12px 0}
+input,select{width:100%;padding:13px;border-radius:13px;border:1px solid var(--line);background:var(--bg);color:var(--text);margin:6px 0 10px;outline:none}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.day{min-height:55px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px;font-size:11px}
+.day b{display:block}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin:2px}
+.dg{background:var(--green)}
+.dr{background:var(--red)}
+.db{background:var(--blue)}
+.dy{background:var(--yellow)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{text-align:left;padding:10px 5px;border-bottom:1px solid var(--line)}
+.empty{padding:35px;text-align:center;color:var(--muted)}
+.modal{position:fixed;inset:0;background:#0008;display:none;align-items:flex-end;z-index:20}
+.modal.open{display:flex}
+.sheet{width:min(900px,100%);margin:auto;background:var(--card);border-radius:28px 28px 0 0;padding:20px;max-height:90vh;overflow:auto}
+@media(max-width:600px){
+.grid{grid-template-columns:repeat(2,1fr)}
+.row{grid-template-columns:1fr}
+.hero h2{font-size:23px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header class="top">
+<div class="brand">
+<div>
+<h1>⚡ Employee Online Attendance</h1>
+<small id="companyLabel">No company created</small>
+</div>
+<button class="icon" onclick="toggleTheme()">🌙</button>
+</div>
+</header>
+
+<main id="view"></main>
+
+<nav class="nav">
+<button onclick="go('dashboard')" id="n-dashboard">
+<strong>⌂</strong>Dashboard
+</button>
+
+<button onclick="go('employees')" id="n-employees">
+<strong>♟</strong>Employees
+</button>
+
+<button onclick="go('calendar')" id="n-calendar">
+<strong>▦</strong>Calendar
+</button>
+
+<button onclick="go('reports')" id="n-reports">
+<strong>▤</strong>Reports
+</button>
+</nav>
+
+</div>
+
+<div class="modal" id="modal">
+<div class="sheet" id="sheet"></div>
+</div>
+
+<script>
+
+const KEY='eoa_v1';
+
+let data=JSON.parse(localStorage.getItem(KEY)||'null')||{
+company:'',
+employees:[],
+records:{},
+holidays:[],
+theme:'dark'
+};
+
+let page='dashboard';
+
+const save=()=>{
+localStorage.setItem(KEY,JSON.stringify(data));
+render()
+};
+
+const today=()=>new Date().toISOString().slice(0,10);
+
+const fmt=d=>new Date(d+'T00:00:00').toLocaleDateString(undefined,{
+day:'2-digit',
+month:'short',
+year:'numeric'
+});
+
+const monthKey=d=>d.slice(0,7);
+
+function setTheme(){
+document.documentElement.dataset.theme=data.theme||'dark'
+}
+
+setTheme();
+
+function toggleTheme(){
+data.theme=data.theme==='dark'?'light':'dark';
+localStorage.setItem(KEY,JSON.stringify(data));
+setTheme();
+render()
+}
+
+function go(p){
+page=p;
+render()
+}
+
+function rec(id,date=today()){
+data.records[date]??={};
+data.records[date][id]??={status:'',ot:0};
+return data.records[date][id]
+}
+
+function mark(id,status){
+rec(id).status=status;
+save()
+}
+
+function setOT(id,h){
+rec(id).ot=h;
+save()
+}
+
+function statusClass(s){
+return s==='Present'?'s-present':
+s==='Absent'?'s-absent':
+s==='Leave'?'s-leave':
+s==='Holiday'?'s-holiday':''
+}
+
+function statusIcon(s){
+return s==='Present'?'🟢':
+s==='Absent'?'🔴':
+s==='Leave'?'🔵':
+s==='Holiday'?'🟡':'⚪'
+}
+
+function dashboard(){
+
+let d=today(),
+rs=data.records[d]||{},
+p=0,a=0,l=0,ot=0;
+
+data.employees.forEach(e=>{
+let r=rs[e.id];
+
+if(r?.status==='Present')p++;
+if(r?.status==='Absent')a++;
+if(r?.status==='Leave')l++;
+
+ot+=r?.ot||0
+});
+
+return `
+<div class="hero">
+<h2>${data.company||'Set up your company'}</h2>
+<p>${fmt(d)} • One-tap attendance & overtime</p>
+</div>
+
+<div class="grid">
+
+<div class="stat">
+<b>${p}</b>
+<span>Present</span>
+</div>
+
+<div class="stat">
+<b>${a}</b>
+<span>Absent</span>
+</div>
+
+<div class="stat">
+<b>${l}</b>
+<span>Leave</span>
+</div>
+
+<div class="stat">
+<b>${ot}h</b>
+<span>Overtime</span>
+</div>
+
+</div>
+
+<div class="section">
+
+<div class="section-head">
+<h3>⚡ Today's Tracking</h3>
+<button class="btn green" onclick="openAdd()">+ Employee</button>
+</div>
+
+${
+data.employees.length
+?data.employees.map(empCard).join('')
+:`<div class="panel empty">Add your first employee to start daily attendance.</div>`
+}
+
+</div>
+
+<div class="section">
+
+<div class="section-head">
+<h3>🏖️ Holidays</h3>
+<button class="btn ghost" onclick="openHoliday()">+ Add</button>
+</div>
+
+${
+data.holidays.length
+?data.holidays.slice(-5).reverse().map(h=>
+`<div class="panel">
+<b>${fmt(h.date)}</b>
+<div style="color:var(--muted)">${h.name}</div>
+</div>`
+).join('')
+:`<div class="panel empty">No holidays added yet.</div>`
+}
+
+</div>
+`;
+}
+
+function empCard(e){
+
+let r=rec(e.id),
+s=r.status||'Not marked';
+
+return `
+<div class="employee">
+
+<div class="emp-head">
+
+<div class="avatar">
+${e.name.split(' ').map(x=>x[0]).slice(0,2).join('')}
+</div>
+
+<div>
+<div class="emp-name">${esc(e.name)}</div>
+<div class="emp-meta">
+${esc(e.department||'General')} • ${esc(e.id)}
+</div>
+</div>
+
+<span class="status ${statusClass(s)}">
+${statusIcon(s)} ${s}
+</span>
+
+</div>
+
+<div class="actions">
+
+<button class="p" onclick="mark('${e.id}','Present')">
+✓ Present
+</button>
+
+<button class="a" onclick="mark('${e.id}','Absent')">
+✕ Absent
+</button>
+
+<button class="l" onclick="mark('${e.id}','Leave')">
+↗ Leave
+</button>
+
+</div>
+
+<div class="ot">
+
+${[0,1,2,3,4,5,6,7,8,9,10,11,12].map(h=>
+`<button class="${r.ot==h?'active':''}" onclick="setOT('${e.id}',${h})">${h}h</button>`
+).join('')}
+
+</div>
+
+</div>
+`;
+}
+
+function employees(){
+
+return `
+<div class="section-head">
+<h2>Employees</h2>
+<button class="btn green" onclick="openAdd()">+ Add</button>
+</div>
+
+<div class="panel">
+
+<input id="search"
+placeholder="🔎 Search employee..."
+oninput="renderEmployees()">
+
+<div id="elist"></div>
+
+</div>
+`;
+}
+
+function renderEmployees(){
+
+let q=(document.getElementById('search')?.value||'').toLowerCase();
+
+let list=data.employees.filter(e=>
+(e.name+' '+e.department+' '+e.id)
+.toLowerCase()
+.includes(q)
+);
+
+document.getElementById('elist').innerHTML=
+list.length
+?list.map(e=>
+`<div class="panel">
+
+<b>${esc(e.name)}</b>
+
+<div style="color:var(--muted)">
+${esc(e.id)} • ${esc(e.department||'General')}
+</div>
+
+<button class="btn red"
+style="margin-top:8px"
+onclick="delEmp('${e.id}')">
+Remove
+</button>
+
+</div>`
+).join('')
+:`<div class="empty">No employees found.</div>`;
+}
+
+function calendar(){
+
+let now=new Date(),
+y=now.getFullYear(),
+m=now.getMonth(),
+first=new Date(y,m,1),
+days=new Date(y,m+1,0).getDate(),
+cells='';
+
+for(let i=0;i<first.getDay();i++)
+cells+='<div></div>';
+
+for(let day=1;day<=days;day++){
+
+let d=`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`,
+rs=data.records[d]||{},
+counts={Present:0,Absent:0,Leave:0};
+
+Object.values(rs).forEach(r=>{
+if(counts[r.status]!=null)
+counts[r.status]++
+});
+
+let hol=data.holidays.find(h=>h.date===d);
+
+cells+=`
+<div class="day">
+<b>${day}</b>
+${hol?'<span class="dot dy"></span>':''}
+<span class="dot dg"></span>${counts.Present}
+<span class="dot dr"></span>${counts.Absent}
+<span class="dot db"></span>${counts.Leave}
+</div>
+`;
+}
+
+return `
+<div class="section-head">
+
+<h2>📅 ${now.toLocaleString(undefined,{
+month:'long',
+year:'numeric'
+})}</h2>
+
+<button class="btn ghost" onclick="openHoliday()">
++ Holiday
+</button>
+
+</div>
+
+<div class="panel">
+
+<div class="calendar">
+
+<div>Sun</div>
+<div>Mon</div>
+<div>Tue</div>
+<div>Wed</div>
+<div>Thu</div>
+<div>Fri</div>
+<div>Sat</div>
+
+${cells}
+
+</div>
+
+</div>
+`;
+}
+
+function reports(){
+
+let ym=monthKey(today());
+
+let rows=data.employees.map(e=>{
+
+let present=0,
+absent=0,
+leave=0,
+ot=0;
+
+Object.entries(data.records).forEach(([d,rs])=>{
+
+if(d.startsWith(ym)){
+
+let r=rs[e.id];
+
+if(!r)return;
+
+if(r.status==='Present')present++;
+if(r.status==='Absent')absent++;
+if(r.status==='Leave')leave++;
+
+ot+=r.ot||0;
+
+}
+
+});
+
+let normal=present*8;
+
+return {
+e,
+present,
+absent,
+leave,
+ot,
+normal,
+total:normal+ot
+};
+
+});
+
+return `
+
+<div class="section-head">
+
+<h2>📊 Monthly Report</h2>
+
+<span style="color:var(--muted)">
+${fmt(today()).slice(3)}
+</span>
+
+</div>
+
+<div class="panel">
+
+<table>
+
+<thead>
+<tr>
+<th>Employee</th>
+<th>Present</th>
+<th>Absent</th>
+<th>OT</th>
+<th>Total h</th>
+</tr>
+</thead>
+
+<tbody>
+
+${rows.map(x=>
+`<tr>
+
+<td>
+<b>${esc(x.e.name)}</b>
+<br>
+<small>${esc(x.e.department||'')}</small>
+</td>
+
+<td>${x.present}</td>
+<td>${x.absent}</td>
+<td>${x.ot}h</td>
+<td><b>${x.total}h</b></td>
+
+</tr>`
+).join('')}
+
+</tbody>
+
+</table>
+
+</div>
+
+<div class="panel">
+
+<b>Payroll formula</b>
+
+<p style="color:var(--muted)">
+Normal hours = Present days × 8.
+Total hours = Normal hours + Overtime.
+You can apply your company's hourly rates separately.
+</p>
+
+</div>
+`;
+}
+
+function openAdd(){
+
+open(`
+
+<h2>➕ Add Employee</h2>
+
+<input id="en"
+placeholder="Employee name">
+
+<div class="row">
+
+<input id="eid"
+placeholder="Employee ID">
+
+<input id="ed"
+placeholder="Department">
+
+</div>
+
+<input id="ej" type="date">
+
+<button class="btn green"
+style="width:100%;margin-top:8px"
+onclick="addEmp()">
+Save Employee
+</button>
+
+<button class="btn ghost"
+style="width:100%;margin-top:8px"
+onclick="closeModal()">
+Cancel
+</button>
+
+`);
+}
+
+function addEmp(){
+
+let name=document.getElementById('en').value.trim();
+
+let id=document.getElementById('eid').value.trim()
+||'EMP-'+String(data.employees.length+1).padStart(3,'0');
+
+if(!name)
+return alert('Enter employee name');
+
+if(data.employees.some(e=>e.id===id))
+return alert('Employee ID already exists');
+
+data.employees.push({
+id,
+name,
+department:document.getElementById('ed').value.trim(),
+joining:document.getElementById('ej').value
+});
+
+closeModal();
+save()
+}
+
+function delEmp(id){
+
+if(confirm('Remove this employee?')){
+
+data.employees=data.employees.filter(e=>e.id!==id);
+
+save()
+
+}
+
+}
+
+function openHoliday(){
+
+open(`
+
+<h2>🏖️ Add Holiday</h2>
+
+<input id="hd"
+type="date"
+value="${today()}">
+
+<input id="hn"
+placeholder="Holiday name">
+
+<button class="btn green"
+style="width:100%"
+onclick="addHoliday()">
+Save Holiday
+</button>
+
+`);
+
+}
+
+function addHoliday(){
+
+let date=document.getElementById('hd').value,
+name=document.getElementById('hn').value.trim();
+
+if(!date||!name)
+return alert('Enter date and holiday name');
+
+data.holidays.push({date,name});
+
+data.employees.forEach(e=>{
+rec(e.id,date).status='Holiday'
+});
+
+closeModal();
+save()
+
+}
+
+function open(s){
+
+document.getElementById('sheet').innerHTML=s;
+
+document.getElementById('modal')
+.classList.add('open');
+
+}
+
+function closeModal(){
+
+document.getElementById('modal')
+.classList.remove('open');
+
+}
+
+function setup(){
+
+open(`
+
+<h2>🚀 Company Setup</h2>
+
+<p style="color:var(--muted)">
+Create your local company workspace.
+Data stays on this device in this version.
+</p>
+
+<input id="cn"
+placeholder="Company name"
+value="${esc(data.company)}">
+
+<button class="btn green"
+style="width:100%"
+onclick="setupSave()">
+Create / Save Company
+</button>
+
+`);
+
+}
+
+function setupSave(){
+
+let n=document.getElementById('cn').value.trim();
+
+if(!n)
+return alert('Enter company name');
+
+data.company=n;
+
+closeModal();
+
+save()
+
+}
+
+function esc(x){
+
+return String(x??'').replace(/[&<>"']/g,m=>({
+'&':'&amp;',
+'<':'&lt;',
+'>':'&gt;',
+'"':'&quot;',
+"'":'&#039;'
+}[m]));
+
+}
+
+function render(){
+
+setTheme();
+
+document.getElementById('companyLabel').textContent=
+data.company||'Set up company';
+
+let v=
+page==='dashboard'?dashboard():
+page==='employees'?employees():
+page==='calendar'?calendar():
+reports();
+
+document.getElementById('view').innerHTML=v;
+
+document.querySelectorAll('.nav button')
+.forEach(b=>b.classList.remove('active'));
+
+document.getElementById('n-'+page)?.classList.add('active');
+
+if(page==='employees')
+renderEmployees();
+
+if(!data.company&&page==='dashboard')
+setTimeout(setup,100);
+
+}
+
+if(!data.company)
+setTimeout(setup,250);
+
+render();
+
+</script>
+
+</body>
+</html>
